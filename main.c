@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef int bool;
-#define true = 1;
-#define false = 0;
+#include <sys/stat.h>
+#include "helpers/headers/types.h"
+#include "helpers/headers/blocks.h"
+#include "helpers/headers/printer.h"
 
 typedef enum eUsage {
     UGENERAL,
@@ -41,17 +41,17 @@ bool _keyValid(const char *key, const size_t sKeySizeOpt) {
 }
 
 typedef struct InputData {
-    FILE *fpPlaintext;
-    FILE *fpCiphertext;
+    char *cpPlaintext;
+    char *cpCiphertext;
     size_t sKeySize;
     char *cpKey;
 } InputData;
 
 /*
- * @param ipDst pointer to
- *
+ * @param ipDst pointer to data structure
+ * @return 0 if parsing succeeded 1 otherwise
  */
-int _parseInput(InputData *ipDst, const int iArgc, const char **cppArgv) {
+int _parseInput(InputData *ipDst, const i32 iArgc, const char **cppArgv) {
     if (iArgc < 5) {
         return _usage(UGENERAL);
     }
@@ -67,29 +67,55 @@ int _parseInput(InputData *ipDst, const int iArgc, const char **cppArgv) {
 
 
     // check if plaintext exists
-    FILE *fpPlaintext = fopen(cppArgv[1], "r");
+    const char *cpPlaintext = cppArgv[1];
+    FILE *fpPlaintext = fopen(cpPlaintext, "r");
     if (!fpPlaintext) { 
         return _usage(UFILENOTFOUND);
     }
+    fclose(fpPlaintext);
 
-    FILE *fpCiphertext = fopen(cppArgv[2], "w");
+    const char *cpCiphertext = cppArgv[2];
+    FILE *fpCiphertext = fopen(cpCiphertext, "w");
+    fclose(fpCiphertext);
 
-    ipDst->fpPlaintext = fpPlaintext;
-    ipDst->fpCiphertext = fpCiphertext;
+    ipDst->cpPlaintext = cpPlaintext;
+    ipDst->cpCiphertext = cpCiphertext;
     ipDst->cpKey = cpKey;
     ipDst->sKeySize = sKeySize;
     return 0;
 }
 
-void cleanup(InputData *ipData) {
-    if (ipData->fpCiphertext) {
-        fclose(ipData->fpCiphertext);
-    }
-    if (ipData->fpPlaintext) {
-        fclose(ipData->fpPlaintext);
-    }
+size_t _fileSize(const char *cpFile) {
+    struct stat s;
+    stat(cpFile, &s);
+    return s.st_size;
 }
-int main(const int iArgc, const char **cppArgv) {
+
+/*
+ *
+ * @return 0 if everything went ok 1 otherwise
+ */
+int _readData(i8 *ipDst, char *cpFileName, size_t sFileSize) {
+    FILE *fpStream = fopen(cpFileName, "r");
+    if (!fpStream) {
+        return _usage(UFILENOTFOUND);
+    }
+    i32 iBytesRead = fread(ipDst, 1, sFileSize, fpStream);
+    fclose(fpStream);
+    if (iBytesRead != sFileSize) {
+        printf("Failed to read plaintext\n");
+        return 1;
+    }
+    return 0;
+}
+
+int _writeData(char *cpFileName, i8 *pBytes, size_t sBytesSize) {
+    FILE *fd = fopen(cpFileName, "w");
+    i32 iWriteCount = fwrite(pBytes, 1, sBytesSize, fd);
+    return (sBytesSize == iWriteCount);
+}
+
+int main(const i32 iArgc, const char **cppArgv) {
     // take a plaintext file and write to a stdout file
     // signature:
     // TODO implement modes later
@@ -97,5 +123,29 @@ int main(const int iArgc, const char **cppArgv) {
     if (_parseInput(&data, iArgc, cppArgv)) {
         return 1;
     }
-    return 0;
+
+
+    // read all the data in file
+    const size_t sFileSize = _fileSize(data.cpPlaintext);
+    i8 iPBytes[sFileSize];
+    bzero(iPBytes, sFileSize);
+    if(_readData(iPBytes, data.cpPlaintext, sFileSize)) {
+        return 1;
+    }
+
+
+    // split into blocks
+    const i32 iBlockCount = blockCount(sFileSize);
+    block iBlocks[iBlockCount];
+    fillBlocks(iBlocks, iPBytes, sFileSize);
+    // parse into algorithm
+    
+    const size_t sCBytes = iBlockCount * BLOCKSIZE;
+    i8 iCBytes[sCBytes];
+    bzero(iCBytes, sCBytes);
+    blocks2Bytes(iCBytes, iBlocks, iBlockCount);
+
+
+    // write data
+    _writeData(data.cpCiphertext, iCBytes, sCBytes);
 }
