@@ -10,6 +10,6 @@
  *@Param iPadCount number of bytes to pad
  */
 void padPkcs7(block *bpBlock, const i8 iPadCount) {
-    memset((*bpBlock) + BLOCKSIZE - iPadCount, iPadCount, iPadCount);
+    memset((bpBlock->bytes) + BLOCKSIZE - iPadCount, iPadCount, iPadCount);
 }
 #endif

@@ -21,13 +21,13 @@ void fillBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
     // read each byte and place in associated block
 
     while (iByteOffset < sBytes) {
-        bzero(bppBlocks[iBlockCounter], BLOCKSIZE);
+        bzero(bppBlocks[iBlockCounter].bytes, BLOCKSIZE);
         // if block is complete copy whole block
         u32 uCopyCount = BLOCKSIZE;
         if (sBytes - iByteOffset < 16) {
             uCopyCount = sBytes - iByteOffset;
         }
-        memcpy(bppBlocks[iBlockCounter], ippBytes + iByteOffset, uCopyCount);
+        memcpy(bppBlocks[iBlockCounter].bytes, ippBytes + iByteOffset, uCopyCount);
         iBlockCounter++;
         iByteOffset = iBlockCounter * BLOCKSIZE;
     }
@@ -44,7 +44,7 @@ void blocks2Bytes(i8 *iCBytes, block *pBlocks, const size_t sBlocks) {
     i32 iBlocksCounter = 0;
     while (iBlocksCounter != sBlocks) {
         // copy block into bytes
-        memcpy(iCBytes + iBytesOffset, pBlocks[iBlocksCounter], BLOCKSIZE);
+        memcpy(iCBytes + iBytesOffset, pBlocks[iBlocksCounter].bytes, BLOCKSIZE);
         iBlocksCounter++;
         iBytesOffset = iBlocksCounter * BLOCKSIZE;
     }

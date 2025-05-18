@@ -1,6 +1,8 @@
 // types for global usage across project
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include "consts.h"
 
 #ifndef TYPES_c
 #define TYPES_c
@@ -16,6 +18,46 @@ typedef int8_t i8;
 
 typedef char *str;
 
-#define BLOCKSIZE 16
-typedef i8 block[BLOCKSIZE];
+typedef struct block {
+    u8 bytes[BLOCKSIZE];
+} block;
+
+typedef enum eUsage {
+    UGENERAL,
+    UKEYSIZE,
+    UFILENOTFOUND,
+    UKEY,
+} eUsage;
+
+typedef struct key {
+    u8 uKey[32];
+    size_t sKeySize;
+} key;
+
+typedef struct InputData {
+    char *cpPlaintext;
+    char *cpCiphertext;
+    char *cpKey;
+    size_t sKeySize;
+} InputData;
+
+typedef enum mode {
+    CBC,
+    ECB,
+    CTR,
+} mode;
+
+typedef struct cipherInput {
+    block block;
+    key key;
+    block initVector;
+} cipherInput;
+
+typedef block rKey;
+typedef struct keySchedule {
+    key kInit;
+    rKey rpRKeys[15];
+    size_t sRKeys;
+} keySchedule;
 #endif
+

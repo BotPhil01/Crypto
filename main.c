@@ -5,13 +5,7 @@
 #include "helpers/headers/types.h"
 #include "helpers/headers/blocks.h"
 #include "helpers/headers/printer.h"
-
-typedef enum eUsage {
-    UGENERAL,
-    UKEYSIZE,
-    UFILENOTFOUND,
-    UKEY,
-} eUsage;
+#include "helpers/headers/keyscheduler.h"
 
 int _usage(const eUsage e) {
     switch (e) {
@@ -35,17 +29,10 @@ bool _keySizeValid(const size_t sKeySize) {
     return sKeySize == 16 || sKeySize == 24 || sKeySize == 32;
 }
 
-bool _keyValid(const char *key, const size_t sKeySizeOpt) {
+bool _keyLenValid(const char *key, const size_t sKeySizeOpt) {
     const size_t sKeyLength = strlen(key);
     return sKeyLength == sKeySizeOpt;
 }
-
-typedef struct InputData {
-    char *cpPlaintext;
-    char *cpCiphertext;
-    size_t sKeySize;
-    char *cpKey;
-} InputData;
 
 /*
  * @param ipDst pointer to data structure
@@ -61,7 +48,7 @@ int _parseInput(InputData *ipDst, const i32 iArgc, const char **cppArgv) {
         return _usage(UKEYSIZE);
     }
     const char *cpKey = cppArgv[4];
-    if (!_keyValid(cpKey, sKeySize)) {
+    if (!_keyLenValid(cpKey, sKeySize)) {
         return _usage(UKEY);
     }
 
@@ -138,6 +125,14 @@ int main(const i32 iArgc, const char **cppArgv) {
     const i32 iBlockCount = blockCount(sFileSize);
     block iBlocks[iBlockCount];
     fillBlocks(iBlocks, iPBytes, sFileSize);
+
+    // create keys
+    keySchedule ksSchedule;
+    katob(&ksSchedule.kInit, &data);
+
+    createRKeys(&ksSchedule);
+
+    // printKeySchedule(&ksSchedule);
     // parse into algorithm
     
     const size_t sCBytes = iBlockCount * BLOCKSIZE;

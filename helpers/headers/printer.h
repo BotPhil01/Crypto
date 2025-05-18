@@ -3,5 +3,7 @@
 
 #ifndef PRINTER_H
 #define PRINTER_H
-extern void printArr(i8 *iArr, const size_t sArr);
+extern void printArr(u8 *iArr, const size_t sArr);
+
+extern void printKeySchedule(keySchedule *ks);
 #endif
