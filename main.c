@@ -16,7 +16,7 @@ int _usage(const eUsage e) {
             printf("Usage: plaintext file not found\n");
             break;
         case UGENERAL:
-            printf("Usage: ./aes plaintext ciphertext keysize key [mode]\n");
+            printf("Usage: ./aes plaintext ciphertext keysize key mode encrypt/decrypt [hexmode]\n");
             break;
         case UKEYSIZE:
             printf("Usage: invalid keysize value (bytes) {16, 24, 32}\n");
@@ -50,7 +50,7 @@ bool _keyLenValid(const char *key, const size_t sKeySizeOpt, const bool bHex) {
  */
 int _parseInput(InputData *ipDst, const i32 iArgc, const char **cppArgv) {
     // input size check
-    if (iArgc < 6) {
+    if (iArgc < 7) {
         return _usage(UGENERAL);
     }
 
@@ -66,15 +66,30 @@ int _parseInput(InputData *ipDst, const i32 iArgc, const char **cppArgv) {
     strInput inKeySize;
     strInput inKey;
     strInput inMode;
+    strInput inEnc;
     strInput inHex;
+
+    bzero(inPlaintext.cVal, SMAXSTRINPUT);
+    bzero(inCiphertext.cVal, SMAXSTRINPUT);
+    bzero(inKeySize.cVal, SMAXSTRINPUT);
+    bzero(inKey.cVal, SMAXSTRINPUT);
+    bzero(inMode.cVal, SMAXSTRINPUT);
+    bzero(inEnc.cVal, SMAXSTRINPUT);
+    bzero(inHex.cVal, SMAXSTRINPUT);
 
     memcpy(inPlaintext.cVal, cppArgv[1], strlen(cppArgv[1]));
     memcpy(inCiphertext.cVal, cppArgv[2], strlen(cppArgv[2]));
     memcpy(inKeySize.cVal, cppArgv[3], strlen(cppArgv[3]));
     memcpy(inKey.cVal, cppArgv[4], strlen(cppArgv[4]));
     memcpy(inMode.cVal, cppArgv[5], strlen(cppArgv[5]));
-    if (iArgc == 7) {
-        memcpy(inHex.cVal, cppArgv[6], strlen(cppArgv[6]));
+    memcpy(inEnc.cVal, cppArgv[6], strlen(cppArgv[6]));
+    if (inEnc.cVal[0] == 'e') {
+        ipDst->bEnc = true;
+    } else {
+        ipDst->bEnc = false;
+    }
+    if (iArgc == 8) {
+        memcpy(inHex.cVal, cppArgv[7], strlen(cppArgv[7]));
         ipDst->bHex = false;
         if (inHex.cVal[0] == 'y') {
             ipDst->bHex = true;
@@ -185,7 +200,7 @@ int main(const i32 iArgc, const char **cppArgv) {
     // parse into algorithm
 
     mode mode = strToMode(data.inMode.cVal, strlen(data.inMode.cVal));
-    selectEncCipher(&cData.cipher, mode, true);
+    selectEncCipher(&cData.cipher, mode, data.bEnc);
 
     applyCipher(&cData);
 

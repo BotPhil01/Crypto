@@ -48,6 +48,7 @@ typedef struct InputData {
     size_t sKeySize;
     strInput inMode;
     bool bHex;
+    bool bEnc;
 } InputData;
 
 typedef enum mode {
