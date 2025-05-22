@@ -1,6 +1,7 @@
 #include "headers/types.h"
 #include "headers/padding.h"
 #include "headers/printer.h"
+#include "headers/transposition.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,11 +9,13 @@
 #ifndef BLOCKS_C
 #define BLOCKS_C
 // splits data into blocks
-i32 blockCount(const size_t sFile) {
+u32 blockCount(const size_t sFile) {
     return (sFile / BLOCKSIZE) + 1;
 }
 
 void fillBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
+    // FILLS BLOCKS INCORRECTLY
+    // SHOULD FILL COLUMNS FIRST THEN ROWS
     const i32 iBlockCount = blockCount(sBytes);
     i32 iByteOffset = 0;
     i32 iBlockCounter = 0;
@@ -27,7 +30,14 @@ void fillBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
         if (sBytes - iByteOffset < 16) {
             uCopyCount = sBytes - iByteOffset;
         }
-        memcpy(bppBlocks[iBlockCounter].bytes, ippBytes + iByteOffset, uCopyCount);
+        // TODO change later to fill columns then rows
+        for (u32 i = 0; i < BLOCKDIMENSION; i++) {
+            for (u32 j = 0; j < BLOCKDIMENSION; j++) {
+                const u8 byte = (ippBytes + iByteOffset)[BLOCKDIMENSION * i + j];
+                bppBlocks[iBlockCounter].bytes[BLOCKDIMENSION * j + i] = byte;
+            }
+        }
+        // memcpy(bppBlocks[iBlockCounter].bytes, ippBytes + iByteOffset, uCopyCount);
         iBlockCounter++;
         iByteOffset = iBlockCounter * BLOCKSIZE;
     }
@@ -47,6 +57,12 @@ void blocks2Bytes(i8 *iCBytes, block *pBlocks, const size_t sBlocks) {
         memcpy(iCBytes + iBytesOffset, pBlocks[iBlocksCounter].bytes, BLOCKSIZE);
         iBlocksCounter++;
         iBytesOffset = iBlocksCounter * BLOCKSIZE;
+    }
+}
+
+void bsTranspose(block *bppDst, const size_t sBlocks) {
+    for (u32 i = 0; i < sBlocks; i++) {
+        transpose(bppDst[i].bytes, BLOCKDIMENSION);
     }
 }
 #endif

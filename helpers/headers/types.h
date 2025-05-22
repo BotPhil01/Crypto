@@ -2,7 +2,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "consts.h"
+
 
 #ifndef TYPES_c
 #define TYPES_c
@@ -27,6 +29,7 @@ typedef enum eUsage {
     UKEYSIZE,
     UFILENOTFOUND,
     UKEY,
+    UINPUTSIZE,
 } eUsage;
 
 typedef struct key {
@@ -34,11 +37,17 @@ typedef struct key {
     size_t sKeySize;
 } key;
 
+typedef struct strInput {
+    char cVal[SMAXSTRINPUT];
+} strInput;
+
 typedef struct InputData {
-    char *cpPlaintext;
-    char *cpCiphertext;
-    char *cpKey;
+    strInput inPlaintext;
+    strInput inCiphertext;
+    strInput inKey;
     size_t sKeySize;
+    strInput inMode;
+    bool bHex;
 } InputData;
 
 typedef enum mode {
@@ -47,17 +56,29 @@ typedef enum mode {
     CTR,
 } mode;
 
-typedef struct cipherInput {
-    block block;
-    key key;
-    block initVector;
-} cipherInput;
-
 typedef block rKey;
 typedef struct keySchedule {
     key kInit;
-    rKey rpRKeys[15];
+    rKey rpRKeys[MAXRKEYS];
     size_t sRKeys;
 } keySchedule;
+
+typedef struct cipherInput {
+    block *blocks;
+    size_t sBlocks;
+    const keySchedule *keySchedule;
+    struct block initVector;
+} cipherInput;
+
+typedef void (*cipherPtr) (cipherInput *);
+
+typedef struct cipherSetup {
+    cipherPtr cipher;
+    block *blocks;
+    size_t sBlocks;
+    keySchedule keySchedule;
+    struct block initVector;
+} cipherSetup;
+
 #endif
 
