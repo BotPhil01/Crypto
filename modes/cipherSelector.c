@@ -13,10 +13,10 @@
 
 mode strToMode(const char *pInput, const size_t sInput) {
     assert(sInput > 2);
-    if (pInput[0] == 'E') {
+    if (pInput[0] == 'E' || pInput[0] == 'e') {
         return ECB;
     }
-    if (pInput[1] == 'B') {
+    if (pInput[1] == 'B' || pInput[1] == 'b') {
         return CBC;
     }
     return CTR;
