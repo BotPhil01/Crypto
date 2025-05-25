@@ -5,13 +5,14 @@
 #include "../helpers/headers/types.h"
 #include "../helpers/headers/blocks.h"
 #include "headers/ecb.h"
+#include "headers/cbc.h"
+#include "headers/ctr.h"
 
 // ALL REQUIRE A KEY
 // CBC, CTR REQUIRE AN IV
 
 mode strToMode(const char *pInput, const size_t sInput) {
-    return ECB;
-    assert(sInput > 3);
+    assert(sInput > 2);
     if (pInput[0] == 'E') {
         return ECB;
     }
@@ -29,8 +30,10 @@ void selectEncCipher(cipherPtr *pCipher, mode m, bool bEnc) {
                 *pCipher = &ecbEncrypt;
                 break;
             case CBC:
+                *pCipher = &cbcEncrypt;
                 break;
             case CTR:
+                *pCipher = &ctrEncrypt;
                 break;
         }
     } else {
@@ -39,8 +42,10 @@ void selectEncCipher(cipherPtr *pCipher, mode m, bool bEnc) {
                 *pCipher = &ecbDecrypt;
                 break;
             case CBC:
+                *pCipher = &cbcDecrypt;
                 break;
             case CTR:
+                *pCipher = &ctrDecrypt;
                 break;
         }
     }

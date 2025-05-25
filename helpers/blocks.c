@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
 #ifndef BLOCKS_C
 #define BLOCKS_C
@@ -64,5 +65,37 @@ void bsTranspose(block *bppDst, const size_t sBlocks) {
     for (u32 i = 0; i < sBlocks; i++) {
         transpose(bppDst[i].bytes, BLOCKDIMENSION);
     }
+}
+
+int _incrementHelper(block *bDst, const u32 uIndex) {
+    if (bDst->bytes[uIndex] == 0xff) {
+        bDst->bytes[uIndex] = 0;
+        // overflow error
+        if (uIndex == 0) {
+            return 1;
+        }
+        return _incrementHelper(bDst, uIndex-1);
+    }
+    bDst->bytes[uIndex]++;
+    return 0;
+}
+
+int bIncrement(block *bDst) {
+    return _incrementHelper(bDst, BLOCKSIZE - 1);
+}
+
+void bXor(block *bDst, const block *bSrc) {
+    for (u32 i = 0; i < BLOCKSIZE; i++) {
+        bDst->bytes[i] = bDst->bytes[i] ^ bSrc->bytes[i];
+    }
+}
+
+int bZeroCheck(const block *bDst) {
+    for (u32 i = 0; i < BLOCKSIZE; i++) {
+        if (bDst->bytes[i] != 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 #endif

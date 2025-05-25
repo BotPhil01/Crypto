@@ -1,5 +1,5 @@
 CC=gcc
-FILES = main.c helpers/blocks.c helpers/padding.c helpers/printer.c helpers/consts.c helpers/keyScheduler.c helpers/substitution.c modes/cipherSelector.c modes/ecb.c helpers/cipher.c helpers/hex.c helpers/transposition.c
+FILES = main.c helpers/blocks.c helpers/padding.c helpers/printer.c helpers/consts.c helpers/keyScheduler.c helpers/substitution.c modes/cipherSelector.c helpers/cipher.c helpers/hex.c helpers/transposition.c modes/ecb.c modes/cbc.c modes/ctr.c
 
 prod:
 	$(CC) -o prod $(FILES)

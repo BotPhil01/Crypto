@@ -2,8 +2,6 @@
 
 #ifndef CBC_H
 #define CBC_H
-namespace cbc {
-    void encrypt(cipherInput *pInput);
-    void decrypt(cipherInput *pInput);
-}
+extern void cbcEncrypt(cipherInput *pInput);
+extern void cbcDecrypt(cipherInput *pInput);
 #endif

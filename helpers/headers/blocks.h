@@ -21,4 +21,7 @@ extern void fillBlocks(block *bppBlocks, u8 *ippBytes, const size_t sBytes);
  */
 extern void blocks2Bytes(u8 *iCBytes, block *pBlocks, const size_t sBlocks);
 extern void bsTranspose(block *bppDst, const size_t sBlocks);
+extern int bIncrement(block *bDst);
+extern void bXor(block *bDst, const block *bSrc);
+extern int bZeroCheck(const block *bDst);
 #endif

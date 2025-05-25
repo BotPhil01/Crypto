@@ -2,8 +2,6 @@
 
 #ifndef CTR_H
 #define CTR_H
-namespace ctr {
-    void encrypt(cipherInput *pInput);
-    void decrypt(cipherInput *pInput);
-}
+extern void ctrEncrypt(cipherInput *pInput);
+extern void ctrDecrypt(cipherInput *pInput);
 #endif
