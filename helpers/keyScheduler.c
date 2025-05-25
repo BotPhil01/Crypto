@@ -4,6 +4,7 @@
 #include "headers/printer.h"
 #include "headers/hex.h"
 #include "headers/transposition.h"
+#include "headers/blocks.h"
 #include <assert.h>
 #include <strings.h>
 #include <string.h>
@@ -94,8 +95,6 @@ void createRKeys(keySchedule *ksSchedule) {
         struct word32 wWorking;
         if (i < sInitKey32) {
             memcpy(wWorking.bytes, ksSchedule->kInit.uKey + i * sWord32, sWord32);
-            // printf("Printing word %i: ", i);
-            // printArr(wWorking.bytes, 4);
         } else if (uRem == 0) {
             struct word32 wRCon;
             memcpy(wRCon.bytes, uRConsts[(i / sInitKey32) - 1], sWord32);
@@ -141,6 +140,8 @@ void createRKeys(keySchedule *ksSchedule) {
         }
         bzero(ksSchedule->rpRKeys[i].bytes, 16);
         memcpy(ksSchedule->rpRKeys[i].bytes, bTmp.bytes, 16);
+
+        // transpose
+        // bsTranspose(ksSchedule->rpRKeys + i, BLOCKDIMENSION);
     }
-    _transpose(ksSchedule);
 }

@@ -12,18 +12,19 @@ void _bXor(block *bDst, const block *bSrc) {
     }
 }
 
-// void _mixCols(cipherInput *ciSrc) {
+// cols -> rows
+// rows -> cols
 void _mixCols(block *bSrc) {
     block bTmp;
     bzero(bTmp.bytes, BLOCKSIZE);
 
     // isolate each col
     for (u32 i = 0; i < BLOCKDIMENSION; i++) {
+        const u8 uColStartIndex = BLOCKDIMENSION * i;
         u8 uCol[BLOCKDIMENSION];
         bzero(uCol, BLOCKDIMENSION);
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            uCol[j] = bSrc->bytes[j * BLOCKDIMENSION + i];
-        }
+        memcpy(uCol, bSrc->bytes + uColStartIndex, BLOCKDIMENSION);
+
         u8 uMCol[BLOCKDIMENSION];
         bzero(uMCol, BLOCKDIMENSION);
         
@@ -34,9 +35,7 @@ void _mixCols(block *bSrc) {
             uMCol[j] ^= uGaloisMult2[u2Coefficient] ^ uGaloisMult3[u3Coefficient];
         }
         
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            bTmp.bytes[j * BLOCKDIMENSION + i] = uMCol[j];
-        }
+        memcpy(bTmp.bytes + uColStartIndex, uMCol, BLOCKDIMENSION);
     }
     // for each row
     // apply the matrix
@@ -54,11 +53,11 @@ void _iMixCols(block *bSrc) {
 
     // isolate each col
     for (u32 i = 0; i < BLOCKDIMENSION; i++) {
+        const u8 uColStartIndex = BLOCKDIMENSION * i;
         u8 uCol[BLOCKDIMENSION];
         bzero(uCol, BLOCKDIMENSION);
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            uCol[j] = bSrc->bytes[j * BLOCKDIMENSION + i];
-        }
+        memcpy(uCol, bSrc->bytes + uColStartIndex, BLOCKDIMENSION);
+
         u8 uMCol[BLOCKDIMENSION];
         bzero(uMCol, BLOCKDIMENSION);
         
@@ -73,9 +72,7 @@ void _iMixCols(block *bSrc) {
             uMCol[j] ^= uGaloisMult9[u9Coefficient];
         }
         
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            bTmp.bytes[j * BLOCKDIMENSION + i] = uMCol[j];
-        }
+        memcpy(bTmp.bytes + uColStartIndex, uMCol, BLOCKDIMENSION);
     }
     memcpy(bSrc->bytes, bTmp.bytes, BLOCKSIZE);
 }
@@ -95,31 +92,23 @@ void _iSubBytes(block *bSrc) {
 void _shiftRows(block *bSrc) {
     block bTmp;
     bzero(bTmp.bytes, BLOCKSIZE);
+    memcpy(bTmp.bytes, bSrc->bytes, BLOCKSIZE);
 
-    for (u32 i = 0; i < BLOCKDIMENSION; i++) {
-        const u32 uBlockOffset = i; // segfault here
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            const u32 uDst = BLOCKDIMENSION * i + j;
-            const u32 uSrc = BLOCKDIMENSION * i + ((i + j) % BLOCKDIMENSION);
-            bTmp.bytes[uDst] = bSrc->bytes[uSrc];
-        }
+    for (u32 i = 0; i < BLOCKSIZE; i++) {
+        const u32 uSrcIndex = uFwdSR[i];
+        bSrc->bytes[i] = bTmp.bytes[uSrcIndex];
     }
-    memcpy(bSrc->bytes, bTmp.bytes, BLOCKSIZE);
 }
 
 void _iShiftRows(block *bSrc) {
     block bTmp;
     bzero(bTmp.bytes, BLOCKSIZE);
+    memcpy(bTmp.bytes, bSrc->bytes, BLOCKSIZE);
 
-    for (u32 i = 0; i < BLOCKDIMENSION; i++) {
-        const u32 uBlockOffset = i;
-        for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-            const u32 uDst = BLOCKDIMENSION * i + j;
-            const u32 uSrc = BLOCKDIMENSION * i + ((j - i + 4) % BLOCKDIMENSION);
-            bTmp.bytes[uDst] = bSrc->bytes[uSrc];
-        }
+    for (u32 i = 0; i < BLOCKSIZE; i++) {
+        const u32 uSrcIndex = uBwdSR[i];
+        bSrc->bytes[i] = bTmp.bytes[uSrcIndex];
     }
-    memcpy(bSrc->bytes, bTmp.bytes, BLOCKSIZE);
 }
 
 void _addRKey(block *bSrc, const rKey *rKey) {

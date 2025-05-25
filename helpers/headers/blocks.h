@@ -10,9 +10,14 @@ extern i32 blockCount(const size_t sFile);
 /*
  *@Param ippBlcoks pointer to list of blocks
  *@Param ipBytes pointer to list of bytes
- *@Param iBlockCount block count
  */
-extern void fillBlocks(block *bppBlocks, u8 *ippBytes, const size_t sBytes);
+extern void strToBlocks(block *bppBlocks, u8 *ippBytes, const size_t sBytes);
+
+/*
+ *@Param ippBlocks pointer to block
+ *@Param ipBytes pointer to list of bytes
+ */
+extern void strToBlock(block *bppBlocks, u8 *ippBytes, const size_t sBytes);
 
 /*
  *@Param pBytes list of bytes

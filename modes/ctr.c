@@ -17,9 +17,6 @@ void ctrEncrypt(cipherInput *pInput) {
     // set init vector
     memcpy(&pInput->initVector.bytes, &bVals.bytes, BLOCKSIZE);
 
-    for (u32 i = 0; i < pInput->sBlocks; i++) {
-        transpose(pInput->blocks[i].bytes, BLOCKDIMENSION);
-    }
     // ctr encrypts 
     // b ^ enc(ctr + iv)
     // block is 8 * 16
@@ -37,9 +34,7 @@ void ctrEncrypt(cipherInput *pInput) {
         block bNonce;
         memcpy(&bNonce.bytes, &pInput->initVector, BLOCKSIZE);
         bXor(&bNonce, &bCtr);
-        transpose(bNonce.bytes, BLOCKDIMENSION);
         aesEncrypt(&bNonce, pInput->keySchedule);
-        transpose(pInput->blocks[i].bytes, BLOCKDIMENSION);
         bXor(pInput->blocks + i, &bNonce);
         bIncrement(&bCtr);
     }

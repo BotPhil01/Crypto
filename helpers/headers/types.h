@@ -20,6 +20,11 @@ typedef int8_t i8;
 
 typedef char *str;
 
+// blocks are in the form
+// b0, b1, b2, b3
+// b4, b5 ...
+// b12, b13, b14, b15
+// this is so streams can be read using a singular memcpy
 typedef struct block {
     u8 bytes[BLOCKSIZE];
 } block;

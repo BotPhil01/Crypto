@@ -60,5 +60,4 @@ void applyCipher(cipherSetup *cData) {
         .blocks = cData->blocks
     };
     cData->cipher(&cIn);
-    bsTranspose(cIn.blocks, cIn.sBlocks);
 }

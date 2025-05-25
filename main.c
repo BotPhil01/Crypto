@@ -49,6 +49,16 @@ bool _keyLenValid(const char *key, const size_t sKeySizeOpt, const bool bHex) {
  * @return 0 if parsing succeeded 1 otherwise
  */
 int _parseInput(InputData *ipDst, const i32 iArgc, const char **cppArgv) {
+    // current signature
+    // ./debug src dst keysize key mode encrypt/decrypt hexmode 
+    // ./debug src dst key mode [options]
+    // src = src file
+    // dst = dst file
+    // key = key to use
+    // mode = cipher mode EG: CBC-DECRYPT
+    // options:
+    // -hk = hex key (treat the key as a hex value not an integer)
+    // -ht = hex text (treat the text as a hex value not as a byte)
     // input size check
     if (iArgc < 7) {
         return _usage(UGENERAL);
@@ -189,7 +199,7 @@ int main(const i32 iArgc, const char **cppArgv) {
 
     block uBlocks[uBlockCount];
     cData.blocks = uBlocks;
-    fillBlocks(cData.blocks, iPBytes, sFileSize);
+    strToBlocks(cData.blocks, iPBytes, sFileSize);
 
     // create keys
 

@@ -13,6 +13,10 @@
 #define SMAXSTRINPUT UINT8_MAX
 
 
+extern const uint8_t uFwdSR[16];
+
+extern const uint8_t uBwdSR[16];
+    
 extern const uint8_t uRConsts[10][4];
 
 extern const uint8_t uFwdSBox[256];

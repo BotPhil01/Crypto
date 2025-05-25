@@ -14,9 +14,7 @@ u32 blockCount(const size_t sFile) {
     return (sFile / BLOCKSIZE) + 1;
 }
 
-void fillBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
-    // FILLS BLOCKS INCORRECTLY
-    // SHOULD FILL COLUMNS FIRST THEN ROWS
+void strToBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
     const i32 iBlockCount = blockCount(sBytes);
     i32 iByteOffset = 0;
     i32 iBlockCounter = 0;
@@ -31,14 +29,7 @@ void fillBlocks(block *bppBlocks, i8 *ippBytes, const size_t sBytes) {
         if (sBytes - iByteOffset < 16) {
             uCopyCount = sBytes - iByteOffset;
         }
-        // TODO change later to fill columns then rows
-        for (u32 i = 0; i < BLOCKDIMENSION; i++) {
-            for (u32 j = 0; j < BLOCKDIMENSION; j++) {
-                const u8 byte = (ippBytes + iByteOffset)[BLOCKDIMENSION * i + j];
-                bppBlocks[iBlockCounter].bytes[BLOCKDIMENSION * j + i] = byte;
-            }
-        }
-        // memcpy(bppBlocks[iBlockCounter].bytes, ippBytes + iByteOffset, uCopyCount);
+        memcpy(bppBlocks[iBlockCounter].bytes, ippBytes + iByteOffset, uCopyCount);
         iBlockCounter++;
         iByteOffset = iBlockCounter * BLOCKSIZE;
     }

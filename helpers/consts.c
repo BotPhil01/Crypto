@@ -6,6 +6,20 @@
 #define MAXRKEYS 15
 #define MAXFILENAME 255
 
+const uint8_t uFwdSR[16] = {
+    0, 5, 10, 15,
+    4, 9, 14, 3,
+    8, 13, 2, 7,
+    12, 1, 6, 11,
+};
+
+const uint8_t uBwdSR[16] = {
+    0, 13, 10, 7,
+    4, 1, 14, 11,
+    8, 5, 2, 15,
+    12, 9, 6, 3,
+};
+
 const uint8_t uRConsts[10][4] = {
     {0x01, 0x00, 0x00, 0x00},
     {0x02, 0x00, 0x00, 0x00},
